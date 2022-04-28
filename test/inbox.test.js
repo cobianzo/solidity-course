@@ -7,25 +7,42 @@ const { interface, bytecode } = require("../compile"); // check compile.js, wher
 
 let accounts;
 let inboxContract;
-beforeEach( async function(){
+let INITIAL_MESSAGE = "Hi there!";
+beforeEach( async () => {
   
     // fetch all the test accounts that ganache has created for us inside the web3 lib.
-    accounts = await web3.eth.getAccounts().on('error', console.error);;
+    accounts = await web3.eth.getAccounts();
 
     // use the first account to deploy the contract, using the compiled code and the interface.
     const firstAccount = accounts[0];
     inboxContract = await new web3.eth.Contract( JSON.parse( interface ) )
         .deploy({ 
             data: bytecode,
-            arguments: ['Hi there!'] })
+            arguments: [ INITIAL_MESSAGE ] })
         .send({ from: firstAccount, gas: '1000000' })
         .on('error', console.error);
 } );
 
-describe('Inbox', function(){
+describe('Inbox', () => {
     
     it('deploy our Inbox contract: ', () => {
-        console.log(inboxContract);
-
+        assert.ok( inboxContract.options.address );
     } );
+
+    it('Check default message after creation', async () => {
+        const message = await inboxContract.methods.message().call();
+        assert.equal(message, INITIAL_MESSAGE);
+    });
+    it("can change the message", async () => {
+
+        const NEW_MESSAGE = "BYE BYE!";
+        const transaction = await inboxContract.methods.setMessage(NEW_MESSAGE).send({ from: accounts[0] }); // call() is used to send the transaction to the network.
+        const msgRetrieved   = await inboxContract.methods.message().call();
+        console.log('<>>>>', transaction.transactionHash);
+        assert.equal(msgRetrieved, NEW_MESSAGE);
+
+        // await inboxContract.methods.setMessage("bye").send({ from: accounts[0] });
+        // const message = await inboxContract.methods.message().call();
+        // assert.equal(message, "bye");
+      });
 })
