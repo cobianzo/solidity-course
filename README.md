@@ -1,3 +1,12 @@
+TEST this project as it is:
+- npm i
+- `npx mocha`, or `npm run test`
+And to deploy it, we need to set up infura.io, and get the endpoint
+- `node deploy.js`
+And we will get the address of the new contract, ie  
+`Contract deployed to 0x1f87BbdC0221bE67D473110A67ef6A08fB040000`  
+From there we could continue with Remix interface and Metamask
+
 Code for the first smart contract in solidity.
 ===
 Getting used to the environment:
